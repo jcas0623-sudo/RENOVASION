@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Medicamentos SURA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            max-width: 500px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #0033a0; /* Azul similar al de SURA */
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-audio {
+            background-color: #e1f5fe;
+            color: #0288d1;
+        }
+        .btn-whatsapp {
+            background-color: #25d366;
+            color: white;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+            box-sizing: border-box;
+        }
+        button:hover, .btn-whatsapp:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Mi Gestor SURA</h1>
+    <p>Hoy es 25 de mayo, día de gestionar los medicamentos.</p>
+   
+    <hr>
+
+    <h3>Recordatorios de Voz</h3>
+    <button class="btn-audio" onclick="playAudio('instrucciones')">  Escuchar Instrucciones</button>
+    <button class="btn-audio" onclick="playAudio('alerta')">  Alerta de Renovación</button>
+
+    <hr>
+
+    <h3>Trámite en WhatsApp</h3>
+    <a href="https://wa.me/573175180237?text=Hola%20SURA,%20solicito%20la%20renovación%20y%20despacho%20de%20mis%20medicamentos%20autorizados."
+       target="_blank"
+       class="btn-whatsapp">
+          Enviar Mensaje a SURA
+    </a>
+</div>
+
+<script>
+    // Función para reproducir los audios guardados
+    function playAudio(tipo) {
+        let audio;
+        if (tipo === 'instrucciones') {
+            audio = new Audio('audio/instrucciones.mp3'); // Ruta del archivo de audio
+        } else if (tipo === 'alerta') {
+            audio = new Audio('audio/alerta.mp3');
+        }
+       
+        if (audio) {
+            audio.play().catch(e => console.log("Esperando interacción del usuario para reproducir audio."));
+        }
+    }
+</script>
+
+</body>
+</html>
