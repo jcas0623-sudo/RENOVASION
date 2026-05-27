@@ -4,89 +4,206 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestor de Medicamentos SURA</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0033a0">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
-            padding: 20px;
-            text-align: center;
-        }
-        .container {
-            max-width: 500px;
-            margin: auto;
-            background: white;
-            padding: 20px;
+        body { font-family: Arial, sans-serif; background-color: #f0f4f8; margin: 0; padding: 15px; text-align: center; color: #1e293b; }
+        .container { max-width: 480px; margin: auto; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
+        .logo-sura { color: #0033a0; font-size: 24px; font-weight: bold; margin-bottom: 5px; }
+        .subtitle { font-size: 14px; color: #64748b; margin-bottom: 20px; }
+        .seccion { background-color: #f8fafc; border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid #e2e8f0; text-align: left; }
+        h3 { margin-top: 0; color: #0f172a; font-size: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; }
+       
+        /* CUADRO NARANJA LLAMATIVO QUE PARPADEA (ALTA VISIBILIDAD) */
+        .reproductor-activo {
+            background-color: #fff7ed;
+            border: 4px solid #f97316;
             border-radius: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #0033a0; /* Azul similar al de SURA */
-        }
-        button {
-            width: 100%;
-            padding: 15px;
-            margin: 10px 0;
-            font-size: 16px;
-            border: none;
-            border-radius: 8px;
+            padding: 25px 15px;
+            margin-bottom: 20px;
+            text-align: center;
             cursor: pointer;
-            transition: 0.3s;
+            animation: parpadeoAlerta 2s infinite;
         }
-        .btn-audio {
-            background-color: #e1f5fe;
-            color: #0288d1;
+        @keyframes parpadeoAlerta {
+            0% { border-color: #f97316; box-shadow: 0 0 10px rgba(249, 115, 22, 0.2); }
+            50% { border-color: #ea580c; box-shadow: 0 0 25px rgba(234, 88, 12, 0.7); background-color: #ffedd5; }
+            100% { border-color: #f97316; box-shadow: 0 0 10px rgba(249, 115, 22, 0.2); }
         }
-        .btn-whatsapp {
-            background-color: #25d366;
-            color: white;
-            font-weight: bold;
-            text-decoration: none;
-            display: inline-block;
-            box-sizing: border-box;
-        }
-        button:hover, .btn-whatsapp:hover {
-            opacity: 0.9;
-        }
+
+        .info-alerta { font-size: 20px; font-weight: bold; color: #ea580c; margin-bottom: 15px; }
+        button { width: 100%; padding: 16px; margin: 8px 0; font-size: 16px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; }
+        .btn-reproducir { background-color: #ea580c; color: white; font-size: 18px; }
+        .btn-whatsapp { background-color: #25d366; color: white; text-decoration: none; display: block; text-align: center; padding: 16px; border-radius: 12px; box-sizing: border-box; font-size: 18px; font-weight: bold; }
+       
+        .med-item { background: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; border-left: 5px solid #0033a0; display: flex; justify-content: space-between; align-items: center; }
+        .btn-delete { background: #fee2e2; color: #ef4444; width: auto; padding: 6px 10px; font-size: 12px; margin: 0; border-radius: 6px; }
+        .admin-panel { background: #f1f5f9; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 15px; margin-top: 25px; display: none; text-align: left; }
+        .admin-panel input, .admin-panel select { width: 100%; padding: 10px; margin-top: 4px; border-radius: 8px; border: 1px solid #cbd5e1; box-sizing: border-box; }
+        .btn-add { background: #0033a0; color: white; margin-top: 15px; }
+        .toggle-admin { font-size: 12px; color: #0033a0; background: none; text-decoration: underline; width: auto; font-weight: normal; margin-top: 20px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Mi Gestor SURA</h1>
-    <p>Hoy es 25 de mayo, día de gestionar los medicamentos.</p>
+    <div class="logo-sura">Mi Gestor SURA</div>
+    <div class="subtitle">Accesibilidad y Automatización de Voz</div>
    
-    <hr>
+    <div id="reproductorBloque" class="reproductor-activo" style="display: none;" onclick="repetirAlertaActual()">
+        <div class="info-alerta" id="textoAlertaActual">  ATENCIÓN MEDICAMENTOS</div>
+        <p style="font-size: 14px; margin-bottom: 15px; font-weight: bold; color: #c2410c;">(Toca cualquier parte de este cuadro para volver a escuchar tu audio grabado)</p>
+        <button class="btn-reproducir" onclick="event.stopPropagation(); reproducirAlertaActual()">  ESCUCHAR INSTRUCCIÓN DE VOZ</button>
+    </div>
 
-    <h3>Recordatorios de Voz</h3>
-    <button class="btn-audio" onclick="playAudio('instrucciones')">  Escuchar Instrucciones</button>
-    <button class="btn-audio" onclick="playAudio('alerta')">  Alerta de Renovación</button>
+    <div class="seccion">
+        <h3>  Próximas Renovaciones</h3>
+        <div id="listaMedicamentos"></div>
+    </div>
 
-    <hr>
+    <div class="seccion">
+        <h3>  Enviar Solicitud Manual</h3>
+        <a id="btnWhatsAppSura" href="https://wa.me/573175180237?text=Hola%20SURA,%20solicito%20la%20renovación%20de%20mis%20medicamentos." target="_blank" class="btn-whatsapp">
+              ABRIR WHATSAPP DE SURA
+        </a>
+    </div>
 
-    <h3>Trámite en WhatsApp</h3>
-    <a href="https://wa.me/573175180237?text=Hola%20SURA,%20solicito%20la%20renovación%20y%20despacho%20de%20mis%20medicamentos%20autorizados."
-       target="_blank"
-       class="btn-whatsapp">
-          Enviar Mensaje a SURA
-    </a>
+    <button class="toggle-admin" onclick="toggleAdminPanel()">  Configurar Fechas y Medicamentos</button>
+
+    <div class="admin-panel" id="adminPanel">
+        <h3>Agregar Nueva Alerta</h3>
+        <label>Médico / Especialista:</label>
+        <input type="text" id="medicoInput" placeholder="Ej: Alergólogo, Endocrino">
+       
+        <label>Nombre del Medicamento:</label>
+        <input type="text" id="nombreMedInput" placeholder="Ej: Loratadina, Gotas">
+       
+        <label>Audio MP3 asignado para esta alarma:</label>
+        <select id="audioSelect">
+            <option value="instrucciones">Audio 1: Instrucciones Generales</option>
+            <option value="alerta">Audio 2: Alerta Urgente</option>
+        </select>
+       
+        <label>Día del mes para pedirlo (1 al 31):</label>
+        <input type="number" id="diaInput" min="1" max="31" placeholder="Ej: 26">
+       
+        <button class="btn-add" onclick="guardarMedicamento()">  Guardar Alerta en el Celular</button>
+    </div>
 </div>
 
 <script>
-    // Función para reproducir los audios guardados
-    function playAudio(tipo) {
-        let audio;
-        if (tipo === 'instrucciones') {
-            audio = new Audio('audio/instrucciones.mp3'); // Ruta del archivo de audio
-        } else if (tipo === 'alerta') {
-            audio = new Audio('audio/alerta.mp3');
-        }
+    let medicamentos = JSON.parse(localStorage.getItem('sura_medicamentos')) || [];
+    let audioEnReproduccion = null;
+    let pistaActual = "";
+
+    function toggleAdminPanel() {
+        const panel = document.getElementById('adminPanel');
+        panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function guardarMedicamento() {
+        const medico = document.getElementById('medicoInput').value;
+        const nombreMed = document.getElementById('nombreMedInput').value;
+        const audioAsignado = document.getElementById('audioSelect').value;
+        const dia = parseInt(document.getElementById('diaInput').value);
+
+        if(!medico || !nombreMed || isNaN(dia)) { alert("Por favor completa todos los campos."); return; }
+
+        medicamentos.push({ id: Date.now(), medico, nombreMed, audioAsignado, dia });
+        localStorage.setItem('sura_medicamentos', JSON.stringify(medicamentos));
        
-        if (audio) {
-            audio.play().catch(e => console.log("Esperando interacción del usuario para reproducir audio."));
+        sincronizarServiceWorker();
+        document.getElementById('medicoInput').value = '';
+        document.getElementById('nombreMedInput').value = '';
+        document.getElementById('diaInput').value = '';
+        renderMedicamentos();
+        verificarAlertasHoy();
+        alert("¡Guardado exitosamente!");
+    }
+
+    function eliminarMedicamento(id) {
+        medicamentos = medicamentos.filter(m => m.id !== id);
+        localStorage.setItem('sura_medicamentos', JSON.stringify(medicamentos));
+        sincronizarServiceWorker();
+        renderMedicamentos();
+        verificarAlertasHoy();
+    }
+
+    function sincronizarServiceWorker() {
+        if (navigator.serviceWorker.controller) {
+            navigator.serviceWorker.controller.postMessage({ tipo: 'ACTUALIZAR_ALERTAS', datos: medicamentos });
         }
     }
-</script>
 
+    function renderMedicamentos() {
+        const lista = document.getElementById('listaMedicamentos');
+        lista.innerHTML = '';
+        if(medicamentos.length === 0) {
+            lista.innerHTML = '<p style="font-size: 13px; color: #64748b;">No hay medicamentos guardados.</p>';
+            return;
+        }
+        medicamentos.forEach(m => {
+            const div = document.createElement('div');
+            div.className = 'med-item';
+            div.innerHTML = `<div><b>${m.nombreMed}</b> (${m.medico})<br><small>Pedir los días ${m.dia} de cada mes</small></div>
+                             <button class="btn-delete" onclick="eliminarMedicamento(${m.id})">Borrar</button>`;
+            lista.appendChild(div);
+        });
+    }
+
+    // CONTROL INTELIGENTE DE FECHA (El motor que revisa el día)
+    function verificarAlertasHoy() {
+        const hoy = new Date();
+        const diaActual = hoy.getDate();
+        const alertasHoy = medicamentos.filter(m => m.dia === diaActual);
+        const bloque = document.getElementById('reproductorBloque');
+        const texto = document.getElementById('textoAlertaActual');
+
+        if (alertasHoy.length > 0) {
+            bloque.style.display = 'block';
+            let infoTexto = "  HOY TOCA PEDIR:\n";
+            let vozTexto = "Atención. Hoy debes solicitar los siguientes medicamentos: ";
+           
+            alertasHoy.forEach((m) => {
+                infoTexto += `• ${m.nombreMed} (${m.medico})\n`;
+                vozTexto += `${m.nombreMed} asignado por el médico ${m.medico}. `;
+            });
+            texto.innerText = infoTexto;
+            pistaActual = alertasHoy[0].audioAsignado;
+
+            // SISTEMA DE ACCESIBILIDAD AUTOMÁTICO PARA TU TÍA (Habla el celular solo)
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const mensajeVoz = new SpeechSynthesisUtterance(vozTexto + " Toca la pantalla si quieres escuchar tus instrucciones grabadas.");
+                mensajeVoz.lang = 'es-ES';
+                mensajeVoz.rate = 0.85; // Voz pausada y clara
+                window.speechSynthesis.speak(mensajeVoz);
+            }
+        } else {
+            bloque.style.display = 'none';
+        }
+    }
+
+    function reproducirAlertaActual() {
+        if (audioEnReproduccion) { audioEnReproduccion.pause(); }
+        window.speechSynthesis.cancel(); // Detiene al asistente para escuchar tu MP3 con voz real
+        audioEnReproduccion = new Audio('audio/' + pistaActual + '.mp3');
+        audioEnReproduccion.play().catch(e => console.log("Se requiere interacción del usuario primero."));
+    }
+
+    function repetirAlertaActual() {
+        reproducirAlertaActual();
+    }
+
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js').then(() => {
+                sincronizarServiceWorker();
+                setTimeout(verificarAlertasHoy, 1000); // Da un segundo de margen para activarse
+            });
+        });
+    }
+    renderMedicamentos();
+</script>
 </body>
-</html>
+</html> 
