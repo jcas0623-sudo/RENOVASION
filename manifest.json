@@ -1,5 +1,5 @@
 {
-  "short_name": "SURA Meds",
+  "short_name": "Gestor SURA",
   "name": "Gestor de Medicamentos SURA",
   "icons": [
     {
@@ -15,7 +15,7 @@
   ],
   "start_url": "./index.html",
   "background_color": "#0033a0",
-  "theme_color": "#0033a0",
+  "theme-color": "#0033a0",
   "display": "standalone",
   "orientation": "portrait"
 } 
